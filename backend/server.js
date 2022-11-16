@@ -10,17 +10,30 @@ const corsOptions = {
   origin: "http://localhost:3000",
 };
 
-const requestEndpoint =
+const soulpepperEndpoint =
   "https://www.soulpepper.ca/performances/season-calendar";
+
+const tarragonEndpoint = "https://www.tarragontheatre.com/calendar/";
 
 // This function runs if the http://localhost:5000/getData endpoint
 // is requested with a GET request
-app.get("/getData", cors(corsOptions), async (req, res) => {
+app.get("/soulpepper", cors(corsOptions), async (req, res) => {
   const fetchOptions = {
     method: "GET",
   };
-  const response = await fetch(requestEndpoint, fetchOptions);
+  const response = await fetch(soulpepperEndpoint, fetchOptions);
   const responseText = await response.text();
+  res.json(responseText);
+});
+
+app.get("/tarragon", cors(corsOptions), async (req, res) => {
+  const fetchOptions = {
+    method: "GET",
+  };
+  const response = await fetch(tarragonEndpoint, fetchOptions);
+
+  const responseText = await response.text();
+  // console.log(responseText);
   res.json(responseText);
 });
 

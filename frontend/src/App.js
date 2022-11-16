@@ -1,55 +1,74 @@
 import logo from "./logo.svg";
 import "./App.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function App() {
-  const [info, setInfo] = useState();
-  // fetch("https://tickets.mirvish.com/events/")
-  //   .then((data) => console.log(data))
-  //   .catch((err) => console.log(err));
-  // fetch("http://localhost:5002/getData").then((data) => console.log(data.body));
+  const [soulpepper, setSoulpepper] = useState();
+  const [tarragon, setTarragon] = useState();
 
-  fetch("http://localhost:5002/getData")
-    .then((response) => response.json())
-    .then((data) => {
-      const todayIndex = data.indexOf("day-block  today");
-      const todayString = data.substr(todayIndex, 2000);
-      const aHRefIndex = todayString.indexOf("a href");
-      let showStartIndex = aHRefIndex;
-      while (todayString[showStartIndex] !== ">") {
-        showStartIndex++;
-      }
-      showStartIndex++;
+  const findData = (string, index, symbol) => {
+    while (string[index] !== symbol) {
+      index++;
+    }
+    return index;
+  };
 
-      let showEndIndex = showStartIndex;
+  useEffect(() => {
+    fetch("http://localhost:5002/soulpepper")
+      .then((response) => response.json())
+      .then((data) => {
+        const todayIndex = data.indexOf("day-block  today");
+        const todayString = data.substr(todayIndex, 2000);
+        const aHRefIndex = todayString.indexOf("a href");
+        let startIndex = aHRefIndex;
 
-      while (todayString[showEndIndex] !== "<") {
-        showEndIndex++;
-      }
+        let showStartIndex = findData(todayString, startIndex, ">") + 1;
 
-      const showString = todayString.substring(showStartIndex, showEndIndex);
+        let showEndIndex = findData(todayString, showStartIndex, "<");
 
-      console.log(todayString);
-      let startTimeIndex = todayString.indexOf("time");
-      startTimeIndex += 6;
-      console.log(todayString[startTimeIndex]);
+        const showString = todayString.substring(showStartIndex, showEndIndex);
 
-      let endTimeIndex = startTimeIndex;
+        // console.log(todayString);
+        let startTimeIndex = todayString.indexOf("time");
+        startTimeIndex = findData(todayString, startTimeIndex, ">") + 1;
+        // console.log(todayString[startTimeIndex]);
 
-      while (todayString[endTimeIndex] !== "<") {
-        endTimeIndex++;
-      }
+        const endTimeIndex = findData(todayString, startTimeIndex, "<");
 
-      const showTime = todayString.substring(startTimeIndex, endTimeIndex);
+        const showTime = todayString.substring(startTimeIndex, endTimeIndex);
 
-      setInfo(`Soulpepper Theatre: ${showString}: ${showTime}`);
-      // let
-      // console.log(data);
-    });
-  // console.log(data);
-  // setInfo(data));
+        setSoulpepper(`Soulpepper Theatre: ${showString}: ${showTime}`);
+      });
+  }, []);
 
-  return <div className="App">{info && <section>{info}</section>}</div>;
+  useEffect(() => {
+    fetch("http://localhost:5002/tarragon")
+      .then((response) => response.text())
+      .then((data) => {
+        setTarragon(data);
+        // const todayIndex = data.indexOf("day-block  today");
+        // const todayString = data.substr(todayIndex, 2000);
+        // const aHRefIndex = todayString.indexOf("a href");
+        // let startIndex = aHRefIndex;
+        // let showStartIndex = findData(todayString, startIndex, ">") + 1;
+        // let showEndIndex = findData(todayString, showStartIndex, "<");
+        // const showString = todayString.substring(showStartIndex, showEndIndex);
+        // // console.log(todayString);
+        // let startTimeIndex = todayString.indexOf("time");
+        // startTimeIndex = findData(todayString, startTimeIndex, ">") + 1;
+        // // console.log(todayString[startTimeIndex]);
+        // const endTimeIndex = findData(todayString, startTimeIndex, "<");
+        // const showTime = todayString.substring(startTimeIndex, endTimeIndex);
+        // setSoulpepper(`Soulpepper Theatre: ${showString}: ${showTime}`);
+      });
+  }, []);
+
+  return (
+    <div className="App">
+      {soulpepper && <section>{soulpepper}</section>}
+      {tarragon && <section>{tarragon}</section>}
+    </div>
+  );
 }
 
 export default App;
